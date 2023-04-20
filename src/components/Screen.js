@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
+// CSS using Styled Components
+
 const Container = styled.div`
   width: 500px;
   display: flex;
@@ -11,6 +13,7 @@ const Container = styled.div`
   @media (max-width: 570px) {
     width: 100vw;
     padding: 0px;
+    height: 100vh;
   }
 `;
 
@@ -32,6 +35,8 @@ const Screen = styled.div`
 
   @media (max-width: 570px) {
     width: 97%;
+    height: 150px;
+    font-size: 40px;
   }
 `;
 
@@ -51,7 +56,7 @@ const Keypad = styled.div`
 `;
 
 const Button = styled.button`
-  height: 80px;
+  height: 75px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -99,9 +104,22 @@ const Sub = styled.div`
   position: absolute;
   right: 10px;
   top: 50%;
+  @media (max-width: 570px) {
+    top: 40%;
+    font-size: 15px;
+  }
 `;
 
 const Calculator = () => {
+  // All State Variables
+  /*
+  1. FirstNum for storing the state of the First Number.
+  2. Same Thing goes for Second Num.
+  3. Operation State for what operation to be performed.
+  4. result to display the result when calculations are complete.
+  5. decimal to add floating numbers. If the state is turned true it will accept floating inputs.
+  6. Finally the Str state to show some history
+  */
   let [firstNum, setFirstNum] = useState(0);
   let [secondNum, setSecondNum] = useState(null);
   let [operation, setOperation] = useState(null);
@@ -109,8 +127,15 @@ const Calculator = () => {
   let [decimal, setDecimal] = useState(false);
   let [str, setStr] = useState("");
 
+  /*
+  The below function is the heart of the Calculator. It decides what to do when a user adds a input.
+  */
   const handleClickonButton = (e) => {
     let { value } = e.target;
+
+    // If the user wants a floating number and presses '.', we are setting the state of decimal to true.
+    // If already the input number is decimal we are returning.
+
     if (value === ".") {
       if (decimal) {
         return;
@@ -121,6 +146,7 @@ const Calculator = () => {
       //   console.log("Decimal is", decimal);
     }
 
+    // Reset the whole procedure if the user types 'C'
     if (value === "C") {
       setFirstNum(0);
       setSecondNum(null);
@@ -131,6 +157,7 @@ const Calculator = () => {
       return;
     }
 
+    // If there is alreay result and the user types a number means he/she wants a new operation.
     if (result) {
       setFirstNum(e.target.value);
       setSecondNum(null);
@@ -140,6 +167,8 @@ const Calculator = () => {
       setStr("");
       return;
     }
+
+    //Taking input of the First Number till the user presses a operand(+,-,*,/) key.
 
     if (secondNum === null && secondNum !== "") {
       if (value === "%") {
@@ -151,11 +180,14 @@ const Calculator = () => {
       }
 
       let num;
+
+      //Handling the Decimal with string input.
       if (decimal) {
         num = firstNum + value;
       } else {
         num = firstNum * 10 + parseInt(value);
       }
+      //   Not Taking input of more than 10 digits.
       if (num.toString().length > 10) {
         return;
       }
@@ -163,18 +195,24 @@ const Calculator = () => {
       setFirstNum(num);
       //console.log(firstNum);
     } else {
-      // console.log("Helllo");
       let num;
+      //   Handling the Percentage Part
       if (value === "%") {
         num = (secondNum / 100) * firstNum;
         num = num.toPrecision(4);
         setSecondNum(num);
         return;
       }
+
+      //   Same goes for Changing Sign
+
       if (value === "+/-") {
         setSecondNum(secondNum * -1);
         return;
       }
+
+      //   Taking Input for the Second Number
+
       if (secondNum === "") {
         num = value;
       } else {
@@ -184,6 +222,7 @@ const Calculator = () => {
           num = secondNum * 10 + parseInt(value);
         }
       }
+      //Check so that the user can't input more that 10 digits
 
       if (num.toString().length > 10) {
         return;
@@ -194,12 +233,24 @@ const Calculator = () => {
   };
 
   //   Setting what Operation to Do
+
   const setOperationType = (e) => {
     //console.log("Operation is ", e.target.value);
+    // if (firstNum && operation && !secondNum) {
+    //   return;
+    // }
+
+    // Fixed a Bug when a user double taps a operand
+
+    if (secondNum === "" && !result) {
+      return;
+    }
+
     if (firstNum && secondNum) {
       firstNum = parseFloat(firstNum);
       secondNum = parseFloat(secondNum);
 
+      //   Rallying the sum by setting the result as first number
       if (result) {
         setFirstNum(result);
         setSecondNum("");
@@ -210,6 +261,12 @@ const Calculator = () => {
         //console.log("You are in the right place");
         return;
       }
+
+      /*   If there is first number and second number and the user hits the operand buttons we should take the rally 
+           forward for helping the user taking the sum of make a list of operations.
+           Example: Adding a Grocery List.
+           Below is how i handled that.
+      */
 
       switch (operation) {
         case "+":
@@ -252,14 +309,17 @@ const Calculator = () => {
           break;
 
         default:
-        // code block
+          return;
       }
-
       return;
     }
 
+    /*  One more case i found was when the user has hit the result(means '=')
+         and want to take the rally forward. Below is how i handled that. 
+    */
+
     if (result) {
-      console.log("Oops there is result", result);
+      //console.log("Oops there is result", result);
       setFirstNum(result);
       setResult(null);
       //console.log("First Num is ", firstNum);
@@ -319,7 +379,7 @@ const Calculator = () => {
       calculatedResult = calculatedResult.toPrecision(9);
     }
 
-    console.log("Result is ", calculatedResult);
+    //console.log("Result is ", calculatedResult);
     setResult(calculatedResult);
   };
 
