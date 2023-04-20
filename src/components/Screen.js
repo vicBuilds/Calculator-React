@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
-  width: 90%;
+  width: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -18,21 +18,23 @@ const Screen = styled.div`
   padding: 1px 2px;
   box-sizing: border-box;
   color: white;
-  font-size: 80px;
-  width: 50%;
-  height: 200px;
+  font-size: 70px;
+  width: 90%;
+  height: 250px;
   border-radius: 15px 15px 0 0;
   overflow: hidden;
+  background-color: black;
 `;
 
 const Keypad = styled.div`
   padding: 0px;
-  width: 50%;
+  width: 90%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   border-radius: 0px 0px 15px 15px;
+  background-color: black;
 `;
 
 const Button = styled.button`
@@ -42,6 +44,16 @@ const Button = styled.button`
   align-items: center;
   font-size: 35px;
   flex: 1;
+  margin: 0px 10px;
+  color: white;
+  background-color: #424242;
+  border: none;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  &:hover {
+    transform: scale(1.01);
+    background-color: red;
+  }
 `;
 
 const OperationsButton = styled.button`
@@ -53,6 +65,8 @@ const OperationsButton = styled.button`
   flex: 1;
   background-color: orange;
   color: white;
+  margin: 10px;
+  border-radius: 50%;
   transition: all 0.1s ease;
   &:hover {
     background-color: #f8cd7e;
@@ -64,13 +78,14 @@ const Row = styled.div`
   width: 100%;
   justify-content: space-between;
   align-items: center;
+  padding: 0px;
 `;
 
 const Sub = styled.div`
-  font-size: 12px;
+  font-size: 22px;
   position: absolute;
   right: 10px;
-  top: 30%;
+  top: 50%;
 `;
 
 const Calculator = () => {
@@ -82,11 +97,15 @@ const Calculator = () => {
   let [str, setStr] = useState("");
 
   const handleClickonButton = (e) => {
-    console.log(e.target.isNumber);
     let { value } = e.target;
-    if (value == ".") {
+    if (value === ".") {
+      if (decimal) {
+        return;
+      }
+      decimal = true;
       setDecimal(true);
-      console.log("Hello");
+      //   console.log("Hello Input", value);
+      //   console.log("Decimal is", decimal);
     }
 
     if (value === "C") {
@@ -95,6 +114,7 @@ const Calculator = () => {
       setOperation(null);
       setResult(null);
       setStr("");
+      setDecimal(false);
       return;
     }
 
@@ -108,86 +128,174 @@ const Calculator = () => {
       return;
     }
 
-    // if (secondNum != null) {
-    //   decimal ? (value = value / 10) : (value = value);
-    //   const str = secondNum + "" + value;
-    //   decimal ? setSecondNum(parseFloat(str)) : setSecondNum(parseFloat(str));
-    //   //setDecimal(false);
-    // } else {
-    //   decimal ? (value = value / 10) : (value = value);
-    //   const str = firstNum + "" + value;
-    //   console.log("Value of Str is", str);
-    //   decimal ? setFirstNum(parseFloat(str)) : setFirstNum(parseFloat(str));
-    //   //setDecimal(false);
-    // }
-    if (secondNum == null && secondNum != "") {
-      const num = firstNum * 10 + parseInt(value);
-      setFirstNum(parseInt(num));
-      console.log(firstNum);
+    if (secondNum === null && secondNum !== "") {
+      if (value === "%") {
+        return;
+      }
+      if (value === "+/-") {
+        setFirstNum(firstNum * -1);
+        return;
+      }
+
+      let num;
+      if (decimal) {
+        num = firstNum + value;
+      } else {
+        num = firstNum * 10 + parseInt(value);
+      }
+      if (num.toString().length > 10) {
+        return;
+      }
+
+      setFirstNum(num);
+      //console.log(firstNum);
     } else {
       // console.log("Helllo");
       let num;
-      if (secondNum == "") {
-        num = 0 * 10 + parseInt(value);
-      } else {
-        num = secondNum * 10 + parseInt(value);
+      if (value === "%") {
+        num = (secondNum / 100) * firstNum;
+        num = num.toPrecision(4);
+        setSecondNum(num);
+        return;
       }
-      setSecondNum(parseInt(num));
+      if (value === "+/-") {
+        setSecondNum(secondNum * -1);
+        return;
+      }
+      if (secondNum === "") {
+        num = value;
+      } else {
+        if (decimal) {
+          num = secondNum + value;
+        } else {
+          num = secondNum * 10 + parseInt(value);
+        }
+      }
+
+      setSecondNum(num);
     }
   };
 
   //   Setting what Operation to Do
   const setOperationType = (e) => {
-    console.log("Operation is ", e.target.value);
+    //console.log("Operation is ", e.target.value);
+    if (firstNum && secondNum) {
+      firstNum = parseFloat(firstNum);
+      secondNum = parseFloat(secondNum);
+      switch (operation) {
+        case "+":
+          //firstNum = firstNum + secondNum;
+          setFirstNum(firstNum + secondNum);
+          setResult(firstNum + secondNum);
+          setStr(firstNum + "+" + secondNum);
+          setOperation("+");
+          secondNum = "";
+          setSecondNum("");
+          break;
+        case "-":
+          // code block
+          setFirstNum(firstNum - secondNum);
+          setResult(firstNum - secondNum);
+          setStr(firstNum + "-" + secondNum);
+          setOperation("-");
+          secondNum = "";
+          setSecondNum("");
+          break;
+
+        case "*":
+          // code block
+          setFirstNum(firstNum * secondNum);
+          setResult(firstNum * secondNum);
+          setStr(firstNum + "*" + secondNum);
+          setOperation("*");
+          secondNum = "";
+          setSecondNum("");
+          break;
+
+        case "/":
+          // code block
+          setFirstNum(firstNum / secondNum);
+          setResult(firstNum / secondNum);
+          setStr(firstNum + "/" + secondNum);
+          setOperation("/");
+          secondNum = "";
+          setSecondNum("");
+          break;
+
+        default:
+        // code block
+      }
+
+      return;
+    }
+
     if (result) {
       console.log("Oops there is result", result);
       setFirstNum(result);
       setResult(null);
-      console.log("First Num is ", firstNum);
-      console.log("Result is ", result);
+      //console.log("First Num is ", firstNum);
+      //console.log("Result is ", result);
       setStr(result + "" + e.target.value);
       setOperation(e.target.value);
       setSecondNum("");
+      setDecimal(false);
       return;
     }
 
     setOperation(e.target.value);
+    decimal = false;
+    setDecimal(false);
     setStr(str + "" + firstNum + "" + e.target.value);
     setSecondNum("");
   };
 
   const displayResult = (e) => {
-    console.log(e.target.value);
+    //console.log(e.target.value);
     // console.log("First Number is ", firstNum);
     // console.log("Second Number is ", secondNum);
-
+    let calculatedResult = 0;
     setStr(firstNum + "" + operation + "" + secondNum + "=");
+    firstNum = parseFloat(firstNum);
+    secondNum = parseFloat(secondNum);
 
-    if (operation == "*") {
+    if (operation === "*") {
       // console.log("Hello I am here");
-      console.log(firstNum);
-      console.log(secondNum);
-      console.log("Result of the Operation is ", firstNum * secondNum);
-      setResult(firstNum * secondNum);
+
+      //   setResult(firstNum * secondNum);
+      calculatedResult = firstNum * secondNum;
     }
-    if (operation == "+") {
-      setResult(firstNum + secondNum);
+    if (operation === "+") {
+      //console.log(typeof firstNum);
+      //console.log(typeof secondNum);
+      //console.log("Result of the Operation is ", firstNum * secondNum);
+      calculatedResult = firstNum + secondNum;
+      //setResult(firstNum + secondNum);
     }
-    if (operation == "-") {
-      setResult(firstNum - secondNum);
+    if (operation === "-") {
+      //setResult(firstNum - secondNum);
+      calculatedResult = firstNum - secondNum;
     }
-    if (operation == "/") {
-      setResult(firstNum / secondNum);
+    if (operation === "/") {
+      //setResult(firstNum / secondNum);
+      calculatedResult = firstNum / secondNum;
     }
-    //setStr("");
+    setStr(firstNum + "" + operation + "" + secondNum + "=");
+    //calculatedResult.toString().length();
+    //console.log(calculatedResult);
+    //console.log(typeof calculatedResult);
+    if (calculatedResult.toString().length > 11) {
+      calculatedResult = calculatedResult.toPrecision(9);
+    }
+
+    setResult(calculatedResult);
   };
 
   return (
     <Container>
       <Screen>
         <Sub>{str}</Sub>
-        {!result && !secondNum && secondNum != 0 && result != 0 && firstNum}
-        {!result && secondNum && result != 0 && secondNum}
+        {!result && !secondNum && secondNum !== 0 && result !== 0 && firstNum}
+        {!result && secondNum && result !== 0 && secondNum}
         {result && result}
       </Screen>
 
@@ -198,6 +306,7 @@ const Calculator = () => {
             onClick={(e) => {
               handleClickonButton(e);
             }}
+            style={{ color: "black", backgroundColor: "grey" }}
           >
             C
           </Button>
@@ -206,6 +315,7 @@ const Calculator = () => {
             onClick={(e) => {
               handleClickonButton(e);
             }}
+            style={{ color: "black", backgroundColor: "grey" }}
           >
             +/-
           </Button>
@@ -214,6 +324,7 @@ const Calculator = () => {
             onClick={(e) => {
               handleClickonButton(e);
             }}
+            style={{ color: "black", backgroundColor: "grey" }}
           >
             %
           </Button>
@@ -330,7 +441,7 @@ const Calculator = () => {
         </Row>
         <Row>
           <Button
-            style={{ flex: 2.1 }}
+            style={{ flex: 2.1, borderRadius: "25px" }}
             value={"0"}
             onClick={(e) => {
               handleClickonButton(e);
