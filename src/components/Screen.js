@@ -7,6 +7,11 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 20px;
+
+  @media (max-width: 570px) {
+    width: 100vw;
+    padding: 0px;
+  }
 `;
 
 const Screen = styled.div`
@@ -18,12 +23,16 @@ const Screen = styled.div`
   padding: 1px 2px;
   box-sizing: border-box;
   color: white;
-  font-size: 70px;
+  font-size: 60px;
   width: 90%;
   height: 250px;
-  border-radius: 15px 15px 0 0;
+  border-radius: 0px 0px 0 0;
   overflow: hidden;
   background-color: black;
+
+  @media (max-width: 570px) {
+    width: 97%;
+  }
 `;
 
 const Keypad = styled.div`
@@ -33,8 +42,12 @@ const Keypad = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border-radius: 0px 0px 15px 15px;
+  border-radius: 0px 0px 0px 0px;
   background-color: black;
+
+  @media (max-width: 570px) {
+    width: 97%;
+  }
 `;
 
 const Button = styled.button`
@@ -172,6 +185,10 @@ const Calculator = () => {
         }
       }
 
+      if (num.toString().length > 10) {
+        return;
+      }
+
       setSecondNum(num);
     }
   };
@@ -182,6 +199,18 @@ const Calculator = () => {
     if (firstNum && secondNum) {
       firstNum = parseFloat(firstNum);
       secondNum = parseFloat(secondNum);
+
+      if (result) {
+        setFirstNum(result);
+        setSecondNum("");
+        setOperation(e.target.value);
+        setStr(result + e.target.value);
+        setDecimal(false);
+        setResult(null);
+        //console.log("You are in the right place");
+        return;
+      }
+
       switch (operation) {
         case "+":
           //firstNum = firstNum + secondNum;
@@ -253,6 +282,9 @@ const Calculator = () => {
     //console.log(e.target.value);
     // console.log("First Number is ", firstNum);
     // console.log("Second Number is ", secondNum);
+    if (!secondNum) {
+      return;
+    }
     let calculatedResult = 0;
     setStr(firstNum + "" + operation + "" + secondNum + "=");
     firstNum = parseFloat(firstNum);
@@ -287,6 +319,7 @@ const Calculator = () => {
       calculatedResult = calculatedResult.toPrecision(9);
     }
 
+    console.log("Result is ", calculatedResult);
     setResult(calculatedResult);
   };
 
